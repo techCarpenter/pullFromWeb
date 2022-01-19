@@ -1,0 +1,16 @@
+{
+	"name": "pullfromweb",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"type": "module",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Brian DeVries",
+	"license": "ISC",
+	"dependencies": {
+		"jsdom": "^19.0.0",
+		"node-fetch": "^3.1.1"
+	}
+}
