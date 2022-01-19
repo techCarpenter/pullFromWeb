@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 import { minify } from "html-minifier";
 import { JSDOM } from "jsdom";
-import fs from "fs/promises";
+import { writeFile } from "fs/promises";
 
 let webPages = [
   {
@@ -34,11 +34,23 @@ async function main() {
   console.info("Begin pulling web pages...");
 
   for (let i = 0; i < webPages.length; i++) {
-    console.log(`File #${(i + 1).toString()}`);
+    process.stdout.clearLine(0);
+    process.stdout.cursorTo(0);
+    process.stdout.write(
+      `Writing file ${(i + 1).toString()}/${webPages.length}${
+        i === webPages.length-1 ? "\n" : ""
+      }`
+    );
 
-    const dom = await getDomForUrl(webPages[i].url);
-    const win = dom.window;
-    const doc = dom.window.document;
+    const minifyOpts = {
+        removeComments: true,
+        collapseWhitespace: true,
+        removeEmptyElements: true
+      },
+      fileName = `./Documents/${webPages[i].fileName}.html`,
+      dom = await getDomForUrl(webPages[i].url),
+      win = dom.window,
+      doc = dom.window.document;
 
     // Remove all script and style tags
     Array.from(doc.querySelectorAll("script, style, dummy")).forEach(item =>
@@ -55,14 +67,7 @@ async function main() {
       .filter(link => link.rel === "stylesheet")
       .forEach(link => link.remove());
 
-    fs.writeFile(
-      `./Documents/${webPages[i].fileName}.html`,
-      minify(dom.serialize(), {
-        removeComments: true,
-        collapseWhitespace: true,
-        removeEmptyElements: true
-      })
-    );
+    await writeFile(fileName, minify(dom.serialize(), minifyOpts));
   }
 
   console.log("Finished.");
@@ -79,4 +84,5 @@ async function getDomForUrl(url) {
   return new JSDOM(response, { url });
 }
 
+// Execute script
 main().then();
