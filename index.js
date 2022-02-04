@@ -12,12 +12,6 @@ async function main() {
       await mkdir("Documents");
     }
 
-    // if (
-    //   webPageArray.some(item => item.url === undefined || item.url.length === 0)
-    // ) {
-    //   throw new Error("Urls cannot be missing.");
-    // }
-
     console.info("Begin pulling web pages...");
 
     const webPageArray = webPages.map(item => {
@@ -41,19 +35,18 @@ async function main() {
         },
         dom = await getDomForUrl(webPageArray[i].url);
 
-        if (typeof dom === "object") {
-          const win = dom.window,
-            doc = dom.window.document;
+      if (typeof dom === "object") {
+        const win = dom.window,
+          doc = dom.window.document;
 
-          let docTitle = getSafeFileName(doc.title);
-          let fileName = `./Documents/${
-            webPageArray[i].fileName || docTitle
-          }.html`;
+        let fileName = `./Documents/${getSafeFileName(
+          webPageArray[i].fileName || doc.title
+        )}.html`;
 
-          // Remove all script and style tags
-          Array.from(doc.querySelectorAll("script, style, dummy")).forEach(
-            item => item.remove()
-          );
+        // Remove all script tags
+        Array.from(doc.querySelectorAll("script")).forEach(item =>
+          item.remove()
+        );
 
         // Replace relative urls with hardcoded url
         Array.from(doc.querySelectorAll("*"))
@@ -78,13 +71,8 @@ async function main() {
             .filter(img => img.src.startsWith(win.origin))
             .forEach(img => (img.src = img.src));
 
-          // Remove links to style sheets
-          Array.from(doc.querySelectorAll("link"))
-            .filter(link => link.rel === "stylesheet")
-            .forEach(link => link.remove());
-
-          await writeFile(fileName, minify(dom.serialize(), minifyOpts));
-        }
+        await writeFile(fileName, minify(dom.serialize(), minifyOpts));
+      }
     }
   } catch (error) {
     console.error(error);
