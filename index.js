@@ -44,7 +44,7 @@ async function main() {
         )}.html`;
 
         // Remove all script tags
-        Array.from(doc.querySelectorAll("script")).forEach(item =>
+        Array.from(doc.querySelectorAll("script, iframe")).forEach(item =>
           item.remove()
         );
 
@@ -66,19 +66,19 @@ async function main() {
             if (docItem.src !== undefined) docItem.src = docItem.src;
           });
 
-          // Replace relative images with hardcoded url
-          Array.from(doc.querySelectorAll("img"))
-            .filter(img => img.src.startsWith(win.origin))
-            .forEach(img => (img.src = img.src));
+        // Replace relative images with hardcoded url
+        Array.from(doc.querySelectorAll("img"))
+          .filter(img => img.src.startsWith(win.origin))
+          .forEach(img => (img.src = img.src));
 
         await writeFile(fileName, minify(dom.serialize(), minifyOpts));
       }
     }
   } catch (error) {
     console.error(error);
+  } finally {
+    console.log("Finished.");
   }
-
-  console.log("Finished.");
 }
 
 /**
