@@ -42,42 +42,42 @@ async function main() {
         dom = await getDomForUrl(webPageArray[i].url);
 
         if (typeof dom === "object") {
-          const win = dom.window,
-            doc = dom.window.document;
+        const win = dom.window,
+          doc = dom.window.document;
 
-          let docTitle = getSafeFileName(doc.title);
-          let fileName = `./Documents/${
-            webPageArray[i].fileName || docTitle
-          }.html`;
+        let docTitle = getSafeFileName(doc.title);
+        let fileName = `./Documents/${
+          webPageArray[i].fileName || docTitle
+        }.html`;
 
-          // Remove all script and style tags
-          Array.from(doc.querySelectorAll("script, style, dummy")).forEach(
-            item => item.remove()
-          );
+        // Remove selected tags
+        Array.from(doc.querySelectorAll("script, style, iframe")).forEach(item =>
+          item.remove()
+        );
 
-          // Replace relative urls with hardcoded url
-          Array.from(doc.querySelectorAll("a"))
-            .filter(anchor => anchor.href.startsWith(win.origin))
-            .forEach(anchor => (anchor.href = anchor.href));
+        // Replace relative urls with hardcoded url
+        Array.from(doc.querySelectorAll("a"))
+          .filter(anchor => anchor.href.startsWith(win.origin))
+          .forEach(anchor => (anchor.href = anchor.href));
 
-          // Replace relative images with hardcoded url
-          Array.from(doc.querySelectorAll("img"))
-            .filter(img => img.src.startsWith(win.origin))
-            .forEach(img => (img.src = img.src));
+        // Replace relative images with hardcoded url
+        Array.from(doc.querySelectorAll("img"))
+          .filter(img => img.src.startsWith(win.origin))
+          .forEach(img => (img.src = img.src));
 
-          // Remove links to style sheets
-          Array.from(doc.querySelectorAll("link"))
-            .filter(link => link.rel === "stylesheet")
-            .forEach(link => link.remove());
-
-          await writeFile(fileName, minify(dom.serialize(), minifyOpts));
-        }
+        // Remove links to style sheets
+        Array.from(doc.querySelectorAll("link"))
+          .filter(link => link.rel === "stylesheet")
+          .forEach(link => link.remove());
+        
+        await writeFile(fileName, minify(dom.serialize(), minifyOpts));
+      }
     }
   } catch (error) {
     console.error(error);
+  } finally {
+    console.log("Finished.");
   }
-
-  console.log("Finished.");
 }
 
 /**
