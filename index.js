@@ -55,10 +55,23 @@ async function main() {
             item => item.remove()
           );
 
-          // Replace relative urls with hardcoded url
-          Array.from(doc.querySelectorAll("a"))
-            .filter(anchor => anchor.href.startsWith(win.origin))
-            .forEach(anchor => (anchor.href = anchor.href));
+        // Replace relative urls with hardcoded url
+        Array.from(doc.querySelectorAll("*"))
+          .filter(
+            docItem =>
+              // @ts-ignore
+              (docItem.href !== undefined &&
+                // @ts-ignore
+                docItem.href.startsWith(win.origin)) ||
+              // @ts-ignore
+              (docItem.src !== undefined && docItem.src.startsWith(win.origin))
+          )
+          .forEach(docItem => {
+            // @ts-ignore
+            if (docItem.href !== undefined) docItem.href = docItem.href;
+            // @ts-ignore
+            if (docItem.src !== undefined) docItem.src = docItem.src;
+          });
 
           // Replace relative images with hardcoded url
           Array.from(doc.querySelectorAll("img"))
